@@ -65,12 +65,13 @@ namespace bosqmode.libvlc
 
             _gcHandle = GCHandle.Alloc(this);
 
+            string argstrings = _defaultArgs;
             if (!audio)
             {
-                _defaultArgs.Insert(_defaultArgs.Length - 1, ";--no-audio");
+                argstrings += ";--no-audio";
             }
 
-            string[] args = _defaultArgs.Split(';');
+            string[] args = argstrings.Split(';');
 
             _libvlc = LibVLCWrapper.libvlc_new(args.Length, args);
 
