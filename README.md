@@ -42,6 +42,23 @@ Note! It is important to keep the libvlc's root folder named 'VLC' as in the clo
 
 Press play. (some url's will take a while to load before playing; i.e. rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov)
 
+## VLC Player Mono
+Monobehaviour component that plays a video and outputs the texture to a RawImage
+
+### Raw Image
+Render target
+
+### Url
+URL of the playable video/stream (eg. rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov)
+
+### Width / Height
+Width and height of the video to be played, configures the internal VLC-libraries to use these
+dimensions. Can be left to 0 to automatically detect the dimensions and use them instead.
+
+### Autoscale RawImage
+Automatically scales the target rawimage to the aspect ratio of the video.
+(Currently only tweaks the height to match the aspect ratio)
+
 ## Acknowledgments
 
 * https://www.videolan.org/developers/vlc/doc/doxygen/html/group__libvlc.html

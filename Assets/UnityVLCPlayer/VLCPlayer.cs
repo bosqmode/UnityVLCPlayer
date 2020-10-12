@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace bosqmode.libvlc
 {
@@ -27,7 +26,7 @@ namespace bosqmode.libvlc
         private libvlc_video_track_t? _videoTrack = null;
         private IntPtr _tracktorelease;
         private int _tracks;
-        private int _trackGetAttempts;
+        private volatile bool _cancel = false;
 
         /// <summary>
         /// Gets the video tracks information that libvlc receives
@@ -97,10 +96,40 @@ namespace bosqmode.libvlc
             _displayHandle = vlc_picture;
 
             LibVLCWrapper.libvlc_video_set_callbacks(_mediaPlayer, _lockHandle, _unlockHandle, _displayHandle, GCHandle.ToIntPtr(_gcHandle));
-
             LibVLCWrapper.libvlc_video_set_format(_mediaPlayer, "RV24", (uint)_width, (uint)_height, (uint)_width * (uint)_channels);
-
             LibVLCWrapper.libvlc_media_player_play(_mediaPlayer);
+
+            System.Threading.Thread t = new System.Threading.Thread(TrackReaderThread);
+            t.Start();
+        }
+
+        private void TrackReaderThread()
+        {
+            int _trackGetAttempts = 0;
+            while (_trackGetAttempts < 10 && _cancel == false)
+            {
+                libvlc_video_track_t? track = GetVideoTrack();
+
+                if (track.HasValue && track.Value.i_width > 0 && track.Value.i_height > 0)
+                {
+                    _videoTrack = track;
+                    if (_width <= 0 || _height <= 0)
+                    {
+                        _width = (int)_videoTrack.Value.i_width;
+                        _height = (int)_videoTrack.Value.i_height;
+                        LibVLCWrapper.libvlc_video_set_format(_mediaPlayer, "RV24", _videoTrack.Value.i_width, _videoTrack.Value.i_height, (uint)_width * (uint)_channels);
+                    }
+                    break;
+                }
+
+                _trackGetAttempts++;
+                System.Threading.Thread.Sleep(500);
+            }
+
+            if (_trackGetAttempts >= 10)
+            {
+                Debug.LogError("Maximum attempts of getting video track reached, maybe opening failed?");
+            }
         }
 
         private void vlc_unlock(IntPtr opaque, IntPtr picture, ref IntPtr planes)
@@ -130,16 +159,6 @@ namespace bosqmode.libvlc
                 Marshal.Copy(picture, _currentImage, 0, _width * _channels * _height);
                 _update = true;
             }
-
-            //TODO: use videotrack information for automatic resolution
-            if (_videoTrack == null)
-            {
-                if (_trackGetAttempts < 3)
-                {
-                    _videoTrack = GetVideoTrack();
-                    _trackGetAttempts++;
-                }
-            }
         }
 
         private libvlc_video_track_t? GetVideoTrack()
@@ -166,6 +185,8 @@ namespace bosqmode.libvlc
 
         public void Dispose()
         {
+            _cancel = true;
+
             if (_tracktorelease != IntPtr.Zero)
             {
                 LibVLCWrapper.libvlc_media_tracks_release(_tracktorelease, _tracks);

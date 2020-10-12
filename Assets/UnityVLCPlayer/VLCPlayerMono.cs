@@ -11,14 +11,18 @@ namespace bosqmode.libvlc
         private string url = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov";
 
         [SerializeField]
-        [Min(1)]
-        [Tooltip("Output resolution width")]
+        [Min(0)]
+        [Tooltip("Output resolution width, can be left 0 for automatic scaling")]
         private int width = 480;
 
         [SerializeField]
-        [Min(1)]
-        [Tooltip("Output resolution height")]
+        [Min(0)]
+        [Tooltip("Output resolution height, can be left 0 for automatic scaling")]
         private int height = 256;
+
+        [Tooltip("Whether to automatically adjust the rawImage's scale to fit the aspect ratio")]
+        [SerializeField]
+        private bool autoscaleRawImage = true;
 
         [SerializeField]
         [Tooltip("Mute")]
@@ -39,12 +43,30 @@ namespace bosqmode.libvlc
             {
                 if (tex == null)
                 {
-                    tex = new Texture2D(width, height, TextureFormat.RGB24, false, false);
-                    m_rawImage.texture = tex;
-                }
+                    if ((width <= 0 || height <= 0) && player.VideoTrack != null)
+                    {
+                        width = (int)player.VideoTrack.Value.i_width;
+                        height = (int)player.VideoTrack.Value.i_height;
+                    }
 
-                tex.LoadRawTextureData(img);
-                tex.Apply(false);
+                    if (width > 0 && height > 0)
+                    {
+                        tex = new Texture2D(width, height, TextureFormat.RGB24, false, false);
+                        m_rawImage.texture = tex;
+
+                        if (autoscaleRawImage)
+                        {
+                            RectTransform rect = m_rawImage.rectTransform;
+                            float ratio = height / (float)width;
+                            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, rect.rect.width * ratio);
+                        }
+                    }
+                }
+                else
+                {
+                    tex.LoadRawTextureData(img);
+                    tex.Apply(false);
+                }
             }
         }
 

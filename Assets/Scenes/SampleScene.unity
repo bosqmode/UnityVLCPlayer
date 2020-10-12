@@ -152,8 +152,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_rawImage: {fileID: 293815901}
   url: rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov
-  width: 1920
-  height: 1080
+  width: 0
+  height: 0
+  autoscaleRawImage: 1
   mute: 1
 --- !u!4 &18358775
 Transform:
