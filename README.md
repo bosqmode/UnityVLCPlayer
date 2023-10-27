@@ -5,16 +5,16 @@ Note that the wrapper is partial and doesn't include options that assets in the
 Asset store or https://code.videolan.org/videolan/vlc-unity/ offers.
 
 ### Requirements
--Unity 2019.2+ (might work with older ones, just not tested with)
+-Unity 2021.3.17f1+ (might work with other ones, just not tested with)
 
 -Win64 build target
 
--libvlc nightly 4.0.0 (again, might work with other ones)
+-libvlc 3.0.19 (win64) (again, might work with other ones)
 
 ## Getting Started
 1. Clone
 
-2. Download or build libvlc (https://artifacts.videolan.org/vlc/nightly-win64/) and copy the contents into 'Assets/Plugins/x86_64/VLC/'
+2. Download or build libvlc (https://artifacts.videolan.org/vlc/release-win64/) and copy the contents into 'Assets/Plugins/x86_64/VLC/'
 
 	The hierarchy of the 'Assets/Plugins/x86_64/VLC/' -folder should look like this:
 
